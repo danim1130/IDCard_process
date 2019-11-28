@@ -14,7 +14,7 @@ def __get_transform_sift_for_type(input_img, card_config: IDCardConfiguration, t
     sift = cv2.xfeatures2d.SIFT_create()
 
     # find the keypoints and descriptors with SIFT
-    template_img = cv2.imread(card_config.templatePath)
+    template_img = card_config.template
     kp1, des1 = sift.detectAndCompute(template_img, None)
     kp2, des2 = sift.detectAndCompute(img2, None)
 
@@ -38,7 +38,7 @@ def __get_transform_sift_for_type(input_img, card_config: IDCardConfiguration, t
 
         dst_pts /= scale
         m, mask = cv2.findHomography(dst_pts, src_pts, cv2.RANSAC, 5.0)
-        img2 = cv2.warpPerspective(input_img, m, template_img.shape[0:2])
+        img2 = cv2.warpPerspective(input_img, m, (template_img.shape[1], template_img.shape[0]))
         return img2
 
     else:

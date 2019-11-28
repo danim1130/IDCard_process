@@ -3,10 +3,7 @@ import id_scripts.id_card_detector
 import id_scripts.id_card_reader
 
 
-id_card_configurations: List[IDCardConfiguration] = []
-
-
-def validate_id_card(img, validating_fields: List[ValidationField]) -> List[ValidationResult]:
+def validate_id_card(img, validating_fields: List[ValidationField], id_card_configurations: List[IDCardConfiguration]) -> List[ValidationResult]:
     original_img = img
 
     detected_card_config = None

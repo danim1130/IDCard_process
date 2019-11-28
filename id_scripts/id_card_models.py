@@ -14,6 +14,7 @@ class IDCardFieldTypeEnum(Enum):
     TEXT = auto()
     TEXT_NAME = auto()
     TEXT_CITY = auto()
+    TEXT_DATE = auto()
     BARCODE = auto()
     DATAGRAM = auto()
 
@@ -26,21 +27,22 @@ class IDCardFieldDescriptor:
 
 
 class IDCardConfiguration:
-    def __init__(self, templatePath: str, fields: List[IDCardFieldDescriptor]) -> None:
-        self.templatePath = templatePath
+    def __init__(self, template, fields: List[IDCardFieldDescriptor], language: str) -> None:
+        self.template = template
         self.fields = fields
+        self.language = language
 
 
 class ValidationField:
     def __init__(self, key: str, value: str) -> None:
-        self.key = key,
+        self.key = key
         self.value = value
 
 
 class ValidationResult:
     def __init__(self, key: str, isCorrect: bool, confidence: int) -> None:
-        self.key = key,
-        self.isCorrect = isCorrect,
+        self.key = key
+        self.isCorrect = isCorrect
         self.confidece = confidence
 
 

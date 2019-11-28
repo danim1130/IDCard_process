@@ -9,9 +9,6 @@ from pyzbar import pyzbar
 import id_scripts.pytesseract as pytesseract
 from id_scripts.id_card_models import *
 
-RUN_IMAGE_FIELD_CHECK = __run_image_field_check(clustered_image, card_type, runlevel, unchecked_fields,
-                                                validating_fields, found_fields, run_otsu=False, use_blur=False,
-                                                cluster_image_num=0, override_coordinates=override_coordinates)
 
 name_regex = re.compile('[^a-zA-ZáÁéÉíÍóÓöÖőŐüÜűŰúÚ.\- ]')
 city_regex = re.compile('[^a-zA-Z0-9áÁéÉíÍóÓöÖőŐüÜúÚ\- ]')
@@ -130,7 +127,7 @@ def __filter_read_text(read_values):
     return name, confidence_levels
 
 
-def __image_name(read_values):
+def __image_name(read_values) -> (ConfidenceValue, bool):
     name, confidence_levels = __filter_read_text(read_values)
 
     if len(name) == 0:
@@ -240,7 +237,8 @@ def __run_image_field_check(img,
                             real_field_coordinates: Dict[str, Rectangle],
                             run_otsu,
                             use_blur,
-                            cluster_image_num) -> List[ValidationResult]:
+                            cluster_image_num,
+                            lang) -> List[ValidationResult]:
     success_list = []
     image_parts = []
 
@@ -252,8 +250,8 @@ def __run_image_field_check(img,
     tesseract_output = []
     if len(image_parts) != 0:
         tesseract_output = __run_tesseract_multiple_images(image_parts,
-                                                           extension_configs=["bazaar_complete"],
-                                                           lang="hun_fast",
+                                                           extension_configs=[],
+                                                           lang=lang,
                                                            run_otsu=run_otsu,
                                                            blur_image=use_blur,
                                                            cluster_image_num=cluster_image_num)
@@ -263,13 +261,16 @@ def __run_image_field_check(img,
         field_type = field_type_map[field.key]
         read_value = ""
         if field_type == IDCardFieldTypeEnum.TEXT:
-            read_value = tesseract_output[i]
+            read_value = __filter_read_text(tesseract_output[i])[0]
             i += 1
         elif field_type == IDCardFieldTypeEnum.TEXT_CITY:
-            read_value = __image_city(tesseract_output[i])
+            read_value = __image_city(tesseract_output[i]).value
             i += 1
         elif field_type == IDCardFieldTypeEnum.TEXT_NAME:
-            read_value = __image_name(tesseract_output[i])
+            read_value = __image_name(tesseract_output[i])[0].value
+            i += 1
+        elif field_type == IDCardFieldTypeEnum.TEXT_DATE:
+            read_value = __image_digits(tesseract_output[i]).value
             i += 1
         elif field_type == IDCardFieldTypeEnum.BARCODE:
             read_value = __read_barcode_image(__get_image_part(img, real_field_coordinates[field.key]))
@@ -378,7 +379,7 @@ def validate_fields(img,
                                                  validating_fields=remaining_validating_fields,
                                                  field_type_map=field_type_map,
                                                  real_field_coordinates=field_coordinates,
-                                                 run_otsu=False, use_blur=True, cluster_image_num=5)
+                                                 run_otsu=False, use_blur=True, cluster_image_num=5, lang=id_card_config.language)
         remaining_validating_fields = [x
                                        for x
                                        in remaining_validating_fields
@@ -389,7 +390,7 @@ def validate_fields(img,
                                                  validating_fields=remaining_validating_fields,
                                                  field_type_map=field_type_map,
                                                  real_field_coordinates=field_coordinates,
-                                                 run_otsu=True, use_blur=True, cluster_image_num=0)
+                                                 run_otsu=True, use_blur=True, cluster_image_num=0, lang=id_card_config.language)
         remaining_validating_fields = [x for x in remaining_validating_fields if
                                        x.key not in [y.key for y in field_results]]
     if len(remaining_validating_fields) != 0:  # 77
@@ -397,7 +398,7 @@ def validate_fields(img,
                                                  validating_fields=remaining_validating_fields,
                                                  field_type_map=field_type_map,
                                                  real_field_coordinates=field_coordinates,
-                                                 run_otsu=False, use_blur=True, cluster_image_num=0)
+                                                 run_otsu=False, use_blur=True, cluster_image_num=0, lang=id_card_config.language)
         remaining_validating_fields = [x for x in remaining_validating_fields if
                                        x.key not in [y.key for y in field_results]]
     if len(remaining_validating_fields) != 0:
@@ -405,7 +406,7 @@ def validate_fields(img,
                                                  validating_fields=remaining_validating_fields,
                                                  field_type_map=field_type_map,
                                                  real_field_coordinates=field_coordinates,
-                                                 run_otsu=False, use_blur=False, cluster_image_num=0)
+                                                 run_otsu=False, use_blur=False, cluster_image_num=0, lang=id_card_config.language)
         remaining_validating_fields = [x for x in remaining_validating_fields if
                                        x.key not in [y.key for y in field_results]]
 
@@ -414,7 +415,7 @@ def validate_fields(img,
                                                  validating_fields=remaining_validating_fields,
                                                  field_type_map=field_type_map,
                                                  real_field_coordinates=field_coordinates,
-                                                 run_otsu=True, use_blur=False, cluster_image_num=0)
+                                                 run_otsu=True, use_blur=False, cluster_image_num=0, lang=id_card_config.language)
         remaining_validating_fields = [x for x in remaining_validating_fields if
                                        x.key not in [y.key for y in field_results]]
 
