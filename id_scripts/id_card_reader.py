@@ -15,6 +15,8 @@ city_regex = re.compile('[^a-zA-Z0-9áÁéÉíÍóÓöÖőŐüÜúÚ\- ]')
 date_regex = re.compile('[^0-9.]')
 
 
+
+
 def __run_tesseract_multiple_images(images,
                                     extension_configs,
                                     lang,
@@ -278,90 +280,10 @@ def __run_image_field_check(img,
             read_value = __get_datamatrix_data(__get_image_part(img, real_field_coordinates[field.key]))
 
         if read_value == field.value:
-            success_list.append(ValidationResult(key=field.key, isCorrect=True, confidence=100))
+            success_list.append(ValidationResult(key=field.key, is_correct=True, confidence=100))
 
     return success_list
 
-
-# def __text_detect(image):
-#    ele_size = (25, 3)
-#    image_original = cv2.GaussianBlur(image, (3, 3), sigmaX=0.7)
-#    image = image_original[40:580, 40:850, :]
-#    Z = image.reshape((-1, 3))
-#    Z = np.float32(Z)
-#    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-#    K = 5
-#    ret, label, center = cv2.kmeans(Z, K, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-#    center = np.uint8(center)
-#    minIndex = 0
-#    for j in range(1, K):
-#        if (sum(center[j]) < sum(center[minIndex])):
-#            minIndex = j
-#
-#    for j in range(0, K):
-#        if minIndex == j:
-#            center[j][:] = 0
-#        else:
-#            center[j][:] = 255
-#
-#    res = center[label.flatten()]
-#    image = res.reshape((image.shape))
-#
-#    if len(image.shape)==3:
-#        image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-#    image = cv2.copyMakeBorder(image, 40, 0, 40, 0, cv2.BORDER_CONSTANT, value=255)
-#    img = cv2.Sobel(image,cv2.CV_8U,1,0)#same as default,None,3,1,0,cv2.BORDER_DEFAULT)
-#    img_threshold = cv2.threshold(img,0,255,cv2.THRESH_OTSU+cv2.THRESH_BINARY)
-#    element = cv2.getStructuringElement(cv2.MORPH_RECT,ele_size)
-#    img = cv2.morphologyEx(img_threshold[1],cv2.MORPH_CLOSE,element)
-#    #img_threshold = cv2.bitwise_not(img_threshold)
-#    contours = cv2.findContours(img,0,1)
-#    Rect_all = [cv2.boundingRect(i) for i in contours[1] if i.shape[0] > 40]
-#    Rect = [x for x in Rect_all if x[2] >= 40 and 20 <= x[3] <= 90]
-#    RectP = [(int(i[0]-i[2]*0.05),int(i[1]-i[3]*0.15),int(i[0]+i[2]*1.15),int(i[1]+i[3]*1.15)) for i in Rect]
-#
-#    text_rects = [(0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0)]
-#    for i in range(1, len(text_coordinates)):
-#        for j in range(len(text_coordinates[i])):
-#            found = False
-#            for rect in RectP:
-#                if rect[0] > text_coordinates[i][j][0] - 80 and rect[0] <= text_coordinates[i][j][0] <= rect[2] and \
-#                        rect[1] <= text_coordinates[i][j][1] <= rect[3]:
-#                    found = True
-#                    text_rects[i] = rect
-#                    break
-#            if found:
-#                break
-#
-#    while True:
-#        changed = False
-#        for i in range(1, len(text_rects)):
-#            text_rect = text_rects[i]
-#            for rect in RectP:
-#                if rect[0] > text_rect[0] and rect[2] > text_rect[2] and rect[0] < text_rect[0] + 30 and (
-#                        (text_rect[1] - 5) <= rect[1] <= (text_rect[1]) + 5 or (text_rect[3]) - 5 <= rect[3] <= (
-#                        text_rect[3] + 5)):
-#                    text_rects[i] = (text_rect[0],
-#                    min(rect[1], text_rect[1]), max(text_rect[2], rect[2]), max(text_rect[3], rect[3]))
-#                    changed = True
-#
-#        if not changed:
-#            break
-#
-#    #rect_image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-#    #for i in RectP:
-#    #    cv2.rectangle(rect_image,i[:2],i[2:],(0,0,255))
-#    #for i in text_rects:
-#    #    cv2.rectangle(rect_image,i[:2],i[2:],(0,255,0))
-#    #for i in range(len(text_coordinates)):
-#    #    for j in range(len(text_coordinates[i])):
-#    #        cv2.circle(rect_image, (text_coordinates[i][j][0], text_coordinates[i][j][1]), 3, (255, 0, 0))
-#    #cv2.imshow("test", rect_image)
-#    #cv2.waitKey(0)
-#
-#    for i in range(len(text_rects)):
-#        text_rects[i] = [[text_rects[i][0], text_rects[i][1]], [text_rects[i][2], text_rects[i][3]]]
-#    return [text_rects], image
 
 def validate_fields(img,
                     fields: List[ValidationField],

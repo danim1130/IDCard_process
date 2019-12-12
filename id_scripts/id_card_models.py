@@ -40,19 +40,16 @@ class ValidationField:
 
 
 class ValidationResult:
-    def __init__(self, key: str, isCorrect: bool, confidence: int) -> None:
+    def __init__(self, key: str, is_correct: bool, confidence: int) -> None:
         self.key = key
-        self.isCorrect = isCorrect
+        self.isCorrect = is_correct
         self.confidece = confidence
+
+    def __str__(self) -> str:
+        return f"key: {self.key}, isCorrect: {self.isCorrect}, confidence: {self.confidece}"
 
 
 class ConfidenceValue:
     def __init__(self, value, confidence):
         self.value = value
         self.confidence = confidence
-
-
-class CheckResponseField:
-    def __init__(self, validation_result, possible_values=None):
-        self.validation_result = validation_result
-        self.possible_values = possible_values

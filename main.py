@@ -4,7 +4,7 @@ from id_scripts.id_card_models import *
 import json
 
 
-def readConfigJson(config_name: str) -> IDCardConfiguration:
+def read_config_json(config_name: str) -> IDCardConfiguration:
     with open(config_name) as json_file:
         config_obj = json.load(json_file)
 
@@ -51,17 +51,18 @@ def convert_dict_to_validation_list(obj) -> List[ValidationField]:
     return ret
 
 if __name__ == '__main__':
-    card_configs = [readConfigJson("card_config.json")]
+    card_configs = [read_config_json("card_config.json")]
 
-    img = cv2.imread("ado2teljes.png")
+    img = cv2.imread("badge_photo.jpg")
     validate_fields = convert_dict_to_validation_list({
-        "name" : "Szedeli Zsuzsanna",
-        "birthdate" : "1966.08.30",
-        "mother_name" : "Somlyódy Zsuzsanna",
-        "release_date" : "2009.10.08",
-        "id_code" : "8364003070",
-        "birthplace" : "Budapest"
+        "name" : "Kovács Tamás",
+        "city" : "Székesfehérvár",
+        "member_since" : "2018.04.12",
+        "expiration" : "2020.12.01",
+        "birthdate" : "1996.08.23",
+        "id_code" : "123456789012"
     })
 
     result = id_card.validate_id_card(img, validate_fields, card_configs)
-    print(result)
+    for item in result:
+        print(item)
